@@ -18,7 +18,7 @@ public class PetCareScheduler {
             System.out.println("3. Store Data");
             System.out.println("4. Display Records");
             System.out.println("5. Generate Reports");
-            System.out.println("6. Exit");
+            System.out.println("6. Save & Exit");
             System.out.print("Choose an option: ");
 
             String choice = scanner.nextLine();
@@ -40,6 +40,7 @@ public class PetCareScheduler {
                     generateReports();
                     break;
                 case "6":
+                    storeData();
                     running = false;
                     System.out.println("Goodbye!");
                     break;
@@ -88,8 +89,8 @@ public class PetCareScheduler {
         System.out.print("Enter Appointment Type (Vet Visit, Vaccination, Grooming): ");
         String type = scanner.nextLine();
         if (!(type.equalsIgnoreCase("Vet Visit") ||
-              type.equalsIgnoreCase("Vaccination") ||
-              type.equalsIgnoreCase("Grooming"))) {
+                type.equalsIgnoreCase("Vaccination") ||
+                type.equalsIgnoreCase("Grooming"))) {
             System.out.println("Invalid appointment type.");
             return;
         }
