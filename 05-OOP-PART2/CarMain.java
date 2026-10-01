@@ -1,5 +1,5 @@
 //this is a redundant way to write code as you manually set values.
-public class Main {
+public class CarMain {
     public static void main(String[] args) {
         Car car = new Car();
         car.setMake("BMW");
@@ -20,5 +20,4 @@ public class Main {
         targa.setConvertible(true);
         targa.describeCar();
     }
-    
 }

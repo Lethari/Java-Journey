@@ -1,16 +1,19 @@
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pet {
-    private String id;
+public class Pet implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private final String id;
     private String name;
     private String breed;
     private int age;
     private String owner;
     private String contact;
-    private LocalDateTime registrationDate;
-    private List<Appointment> appointments;
+    private final LocalDateTime registrationDate;
+    private final List<Appointment> appointments;
 
     // Constructor
     public Pet(String id, String name, String breed, int age, String owner, String contact) {

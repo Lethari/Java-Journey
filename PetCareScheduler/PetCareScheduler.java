@@ -3,9 +3,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class PetCareScheduler {
-    private static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     private static Map<String, Pet> pets = new HashMap<>();
-    private static List<Appointment> appointments = new ArrayList<>();
 
     public static void main(String[] args) {
         loadPetsFromFile();
@@ -24,28 +23,17 @@ public class PetCareScheduler {
             String choice = scanner.nextLine();
 
             switch (choice) {
-                case "1":
-                    registerPet();
-                    break;
-                case "2":
-                    scheduleAppointment();
-                    break;
-                case "3":
-                    storeData();
-                    break;
-                case "4":
-                    displayRecords();
-                    break;
-                case "5":
-                    generateReports();
-                    break;
-                case "6":
+                case "1" -> registerPet();
+                case "2" -> scheduleAppointment();
+                case "3" -> storeData();
+                case "4" -> displayRecords();
+                case "5" -> generateReports();
+                case "6" -> {
                     storeData();
                     running = false;
                     System.out.println("Goodbye!");
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please select 1-6.");
+                }
+                default -> System.out.println("Invalid choice. Please select 1-6.");
             }
         }
     }
@@ -64,7 +52,17 @@ public class PetCareScheduler {
         System.out.print("Enter Breed: ");
         String breed = scanner.nextLine();
         System.out.print("Enter Age: ");
-        int age = Integer.parseInt(scanner.nextLine());
+        int age;
+        try {
+            age = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Age must be a whole number.");
+            return;
+        }
+        if (age < 0) {
+            System.out.println("Age cannot be negative.");
+            return;
+        }
         System.out.print("Enter Owner Name: ");
         String owner = scanner.nextLine();
         System.out.print("Enter Contact Info: ");
@@ -118,7 +116,6 @@ public class PetCareScheduler {
 
         Appointment appointment = new Appointment(type, dateTime, notes);
         pet.addAppointment(appointment);
-        appointments.add(appointment);
 
         System.out.println("Appointment scheduled successfully!");
     }
@@ -136,7 +133,20 @@ public class PetCareScheduler {
     // Load pets from file
     private static void loadPetsFromFile() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("pets.dat"))) {
-            pets = (HashMap<String, Pet>) ois.readObject();
+            Object data = ois.readObject();
+            if (!(data instanceof Map)) {
+                throw new IOException("Stored data is not a pet map.");
+            }
+
+            Map<?, ?> loadedPets = (Map<?, ?>) data;
+            Map<String, Pet> restoredPets = new HashMap<>();
+            for (Map.Entry<?, ?> entry : loadedPets.entrySet()) {
+                if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof Pet)) {
+                    throw new IOException("Stored data contains an invalid pet record.");
+                }
+                restoredPets.put((String) entry.getKey(), (Pet) entry.getValue());
+            }
+            pets = restoredPets;
             System.out.println("Pets loaded successfully.");
         } catch (FileNotFoundException e) {
             System.out.println("No existing pet data found.");
@@ -163,16 +173,21 @@ public class PetCareScheduler {
         }
 
         System.out.println("\n--- Upcoming Appointments ---");
-        for (Appointment a : appointments) {
-            if (a.getDateTime().isAfter(LocalDateTime.now())) {
-                System.out.println(a);
+        LocalDateTime now = LocalDateTime.now();
+        for (Pet registeredPet : pets.values()) {
+            for (Appointment appointment : registeredPet.getAppointments()) {
+                if (appointment.getDateTime().isAfter(now)) {
+                    System.out.println(appointment);
+                }
             }
         }
 
         System.out.println("\n--- Past Appointment History ---");
-        for (Appointment a : appointments) {
-            if (a.getDateTime().isBefore(LocalDateTime.now())) {
-                System.out.println(a);
+        for (Pet registeredPet : pets.values()) {
+            for (Appointment appointment : registeredPet.getAppointments()) {
+                if (appointment.getDateTime().isBefore(now)) {
+                    System.out.println(appointment);
+                }
             }
         }
     }
